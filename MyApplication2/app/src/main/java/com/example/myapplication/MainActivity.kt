@@ -31,6 +31,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         registerReceiver(connectivityReceiver, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
+
+    private var workManager: WorkManager? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+
+
         setContent {
             MyApplicationTheme {
                 // A surface container using the 'background' color from the theme
@@ -42,6 +50,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
 
         val batteryLevel = getBatteryLevel()
         sendBatteryNotification(batteryLevel)
@@ -72,6 +81,23 @@ class MainActivity : ComponentActivity() {
         val notificationManager = NotificationManagerCompat.from(this)
         notificationManager.notify(notificationId, notificationBuilder.build())
     }
+
+        workManager = WorkManager.getInstance(applicationContext)
+
+        // Set up periodic work for AirplaneModeWorker
+        val airplaneModeWorkRequest = PeriodicWorkRequestBuilder<AirplaneModeWorker>(
+            repeatInterval = 2, TimeUnit.MINUTES
+        ).build()
+        workManager?.enqueue(airplaneModeWorkRequest)
+
+        // Set up periodic work for BluetoothStatusWorker
+        val bluetoothStatusWorkRequest = PeriodicWorkRequestBuilder<BluetoothStatusWorker>(
+            repeatInterval = 2, TimeUnit.MINUTES
+        ).build()
+        workManager?.enqueue(bluetoothStatusWorkRequest)
+    }
+
+
     @Composable
     fun Greeting(name: String, modifier: Modifier = Modifier) {
         Text(
@@ -90,6 +116,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+
         unregisterReceiver(connectivityReceiver)
+
+        //unregisterReceiver(airplaneModeReceive)
+
     }
 }
