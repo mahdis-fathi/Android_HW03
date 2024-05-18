@@ -51,5 +51,3 @@ class AirplaneModeWorker(context: Context, workerParams: WorkerParameters) :
 
     }
 }
-
-
