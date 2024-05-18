@@ -9,6 +9,12 @@ import org.json.JSONObject
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.File
+import java.io.FileWriter
+import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
@@ -23,6 +29,7 @@ class BluetoothStatusWorker(
         val isBluetoothEnabled = bluetoothAdapter?.isEnabled == true
         Log.i("airplane_worker", "Is Bluetooth enabled? $isBluetoothEnabled")
 
+<<<<<<< Updated upstream
         fun convertMillisToDate(timestamp: Long): String {
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = timestamp
@@ -44,6 +51,78 @@ class BluetoothStatusWorker(
                     "Airplane mode is ${if (isAirplaneModeOn) "On" else "Off"}"
             logFile.appendText(logMessage)
         }
+=======
+
+        val logTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+        val logType = "Bluetooth"
+        val logStatus = "Is Bluetooth enabled? $isBluetoothEnabled"
+        saveLogEntry(applicationContext, logTime, logType, logStatus)
+        Log.i("airplane_worker", "Is Bluetooth enabled? $isBluetoothEnabled")
+>>>>>>> Stashed changes
         return Result.success()
+    }
+
+    private fun saveLogEntry(context: Context, logTime: String, logType: String, logStatus: String) {
+        val logEntry = JSONObject()
+        logEntry.put("time", logTime)
+        logEntry.put("type", logType)
+        logEntry.put("status", logStatus)
+
+        val logsDirectory = File(context.filesDir, "logs")
+        if (!logsDirectory.exists()) {
+            val isDirectoryCreated = logsDirectory.mkdirs()
+            if (!isDirectoryCreated) {
+                Log.e("BluetoothStatusWorker", "Error creating logs directory")
+                return
+            }
+        }
+
+        val logFile = File(logsDirectory, "log_file.json")
+        if (!logFile.exists()) {
+            try {
+                val isFileCreated = logFile.createNewFile()
+                if (!isFileCreated) {
+                    Log.e("BluetoothStatusWorker", "Error creating log file")
+                    return
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
+                Log.e("BluetoothStatusWorker", "Error creating log file: ${e.message}")
+                return
+            }
+        }
+
+        val logArray = if (logFile.exists()) {
+            try {
+                val existingLogs = logFile.readText()
+                if (existingLogs.isNotEmpty()) {
+                    try {
+                        JSONArray(existingLogs)
+                    } catch (ex: Exception) {
+                        JSONArray()
+                    }
+                } else {
+                    JSONArray()
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
+                Log.e("BluetoothStatusWorker", "Error reading log file: ${e.message}")
+                return
+            }
+        } else {
+            JSONArray()
+        }
+
+        logArray.put(logEntry)
+
+        try {
+            FileWriter(logFile).use { fileWriter ->
+                fileWriter.write(logArray.toString())
+                fileWriter.flush()
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            Log.e("BluetoothStatusWorker", "Error writing to log file: ${e.message}")
+        }
     }
 }
