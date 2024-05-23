@@ -2,6 +2,7 @@ package com.example.myapplication
 
 import AirplaneModeWorker
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
@@ -32,7 +33,7 @@ import org.json.JSONObject
 import java.io.File
 import java.util.concurrent.TimeUnit
 import androidx.compose.material3.MaterialTheme
-
+import androidx.compose.ui.platform.LocalContext
 
 
 @Suppress("PreviewNotSupportedInUnitTestFiles")
@@ -51,7 +52,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    DisplayWorkerData()
+                    DisplayWorkerData(LocalContext.current)
                 }
             }
         }
@@ -75,8 +76,8 @@ class MainActivity : ComponentActivity() {
 
     }
     @Composable
-    fun DisplayWorkerData() {
-        val workerData = readWorkerDataFromFile()
+    fun DisplayWorkerData(context: Context) {
+        val workerData = readWorkerDataFromFile(context)
 
         LazyColumn {
             items(workerData) { data ->
@@ -91,15 +92,15 @@ class MainActivity : ComponentActivity() {
             modifier = Modifier.padding(16.dp)
         ) {
             Text("Timestamp: ${data.timestamp}")
-            Text("Bluetooth status: ${data.status}")
+            Text("${data.status}")
         }
     }
 
-    private fun readWorkerDataFromFile(): List<WorkerData> {
+    private fun readWorkerDataFromFile(context: Context, ): List<WorkerData> {
         val workerData = mutableListOf<WorkerData>()
 
         // Read the data from the text file
-        val file = File("path/to/your/file.txt")
+        val file = File(context.filesDir, "logs.txt")
         file.forEachLine { line ->
             val json = JSONObject(line)
             val data = WorkerData(

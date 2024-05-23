@@ -37,7 +37,7 @@ class AirplaneModeWorker(context: Context, workerParams: WorkerParameters) :
         jsonObject.put("timestamp", SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
             Date(System.currentTimeMillis())
         ))
-        jsonObject.put("status of", "airplaneMode is : $airplaneModeStatus")
+        jsonObject.put("status of", " airplaneMode is : $airplaneModeStatus")
         val jsonString = jsonObject.toString() + "\n"
         logFile.appendText(jsonString)
     }

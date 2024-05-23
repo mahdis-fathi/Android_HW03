@@ -31,7 +31,7 @@ class BluetoothStatusWorker(
             jsonObject.put("timestamp", SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
                 Date(System.currentTimeMillis())
             ))
-            jsonObject.put("status of", "bluetoothStatus is : $bluetoothStatus")
+            jsonObject.put("status of", " bluetoothStatus is : $bluetoothStatus")
             val jsonString = jsonObject.toString() + "\n"
             logFile.appendText(jsonString)
         }
